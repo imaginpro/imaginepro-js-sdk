@@ -1,5 +1,26 @@
 # imaginepro-js-sdk
 
+Official SDK of [Imaginepro](https://platform.imaginepro.ai/), your professional AI image generation platform with enterprise-grade stability and scalability.
+
+Imaginepro offers state-of-the-art AI image generation capabilities with:
+
+- 🚀 Enterprise-grade API with high availability
+- 🎨 High-quality image generation with advanced AI models
+- ⚡ Fast processing speed and optimized performance
+- 🛠️ Rich image manipulation features including upscaling, variants and inpainting
+- 🔒 Secure and stable service with professional support
+- 💰 Flexible pricing plans for different business needs
+
+## Key Features
+
+- Text-to-Image Generation: Create stunning images from text descriptions
+- Image Upscaling: Enhance image resolution while maintaining quality
+- Image Variants: Generate alternative versions of existing images
+- Inpainting: Selectively modify specific areas of an image
+- Webhook Support: Integrate with your workflow using custom callbacks
+- Progress Tracking: Monitor generation progress in real-time
+- Enterprise Support: Professional technical support and SLA
+
 ## Get Started
 
 ```bash
