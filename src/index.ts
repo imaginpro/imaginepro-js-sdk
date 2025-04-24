@@ -1,50 +1,85 @@
-interface BaseParams {
-  ref?: string; // Reference id which will sent to webhook
-  webhookOverride?: string; // Webhook URL for receiving generation result callbacks, the response is like MessageResponse
-  timeout?: number; // Timeout in seconds
-  disableCdn?: boolean; // Whether to disable CDN
+// Types and Interfaces
+namespace Types {
+  // Base Parameter Types
+  export interface BaseParams {
+    ref?: string; // Reference id which will be sent to webhook
+    webhookOverride?: string; // Webhook URL for receiving generation result callbacks
+    timeout?: number; // Timeout in seconds
+    disableCdn?: boolean; // Whether to disable CDN
+  }
+
+  // Request Parameter Types
+  export interface ImagineParams extends BaseParams {
+    prompt: string;
+  }
+
+  export interface ButtonPressParams extends BaseParams {
+    messageId: string; // Unique identifier for the message
+    button: string; // Button identifier (e.g., "U1")
+    mask?: string; // Optional mask for the Vary Region action
+    prompt?: string; // Optional prompt for the Vary Region action
+  }
+
+  export interface UpscaleParams extends BaseParams {
+    messageId: string; // Unique identifier for the message
+    index: number; // Index of the button to upscale
+  }
+
+  export interface VariantParams extends BaseParams {
+    messageId: string; // Unique identifier for the message
+    index: number; // Index of the button to generate a variant
+  }
+
+  export interface RerollParams extends BaseParams {
+    messageId: string; // Unique identifier for the message
+  }
+
+  export interface InpaintingParams extends BaseParams {
+    messageId: string; // Unique identifier for the message
+    mask: string; // Mask for the region to vary, required
+    prompt?: string; // Optional prompt for the inpainting
+  }
+
+  // Response Types
+  export interface ImagineResponse {
+    messageId: string; // Unique identifier for the image generation task
+    success: 'PROCESSING' | 'QUEUED' | 'DONE' | 'FAIL'; // Task status
+    createdAt?: string; // If the task is completed, returns the created timestamp
+    error?: string; // If the task fails, returns the error message
+  }
+
+  export interface ErrorResponse {
+    message: string; // Error message
+    error?: string; // Detailed error information
+    statusCode: number; // HTTP status code
+  }
+
+  export interface MessageResponse {
+    messageId: string; // Unique identifier for the message
+    prompt: string; // The prompt used for image generation
+    originalUrl?: string; // Original image URL
+    uri?: string; // Generated image URL
+    progress: number; // Progress percentage
+    status: 'PROCESSING' | 'QUEUED' | 'DONE' | 'FAIL'; // Current status of the message
+    createdAt?: string; // Creation timestamp
+    updatedAt?: string; // Last update timestamp
+    buttons?: string[]; // Available action buttons
+    originatingMessageId?: string; // ID of the originating message
+    ref?: string; // Reference information
+    error?: string; // If the task fails, returns the error message
+  }
+
+  // Configuration
+  export interface ImagineProSDKOptions {
+    apiKey: string; // API key for authentication
+    baseUrl?: string; // Base URL for the API
+    defaultTimeout?: number; // Default timeout for requests in milliseconds
+    fetchInterval?: number; // Interval for polling the message status in milliseconds
+  }
 }
 
-interface ImagineParams extends BaseParams {
-  prompt: string;
-}
-
-interface ImagineResponse {
-  messageId: string; // Unique identifier for the image generation task
-  success: 'PROCESSING' | 'QUEUED' | 'DONE' | 'FAIL'; // Task status
-  createdAt?: string; // If the task is completed, returns the generated image URL
-  error?: string; // If the task fails, returns the error message
-}
-
-interface ErrorResponse {
-  message: string; // Unique identifier for the image generation task
-  error?: string; // If the task fails, returns the error message
-  statusCode: number; // HTTP status code
-}
-
-interface MessageResponse {
-  messageId: string; // Unique identifier for the message
-  prompt: string; // The prompt used for image generation
-  originalUrl?: string; // Original image URL
-  uri?: string; // Generated image URL
-  progress: number; // Progress percentage
-  status: 'PROCESSING' | 'QUEUED' | 'DONE' | 'FAIL'; // Current status of the message
-  createdAt?: string; // Creation timestamp
-  updatedAt?: string; // Last update timestamp
-  buttons?: string[]; // Available action buttons
-  originatingMessageId?: string; // ID of the originating message
-  ref?: string; // Reference information
-  error?: string; // If the task fails, returns the error message
-}
-
-interface ImagineProSDKOptions {
-  apiKey: string; // API key for authentication
-  baseUrl?: string; // Base URL for the API
-  defaultTimeout?: number; // Default timeout for requests
-  fetchInterval?: number; // Interval for polling the message status
-}
-
-enum buttons {
+// Available button actions
+enum Button {
   U1 = 'U1',  // Upscale button 1
   U2 = 'U2',  // Upscale button 2
   U3 = 'U3',  // Upscale button 3
@@ -53,78 +88,73 @@ enum buttons {
   V2 = 'V2',  // Variant button 2
   V3 = 'V3',  // Variant button 3
   V4 = 'V4',  // Variant button 4
-  '🔄' = '🔄',   // Reroll button
-  'Zoom Out 2x' = 'Zoom Out 2x', // Zoom Out button (2x)
-  'Zoom Out 1.5x' = 'Zoom Out 1.5x', // Zoom Out button (1.5x)
-  'Vary (Strong)' = 'Vary (Strong)', // Strong variation button
-  'Vary (Subtle)' = 'Vary (Subtle)', // Subtle variation button
-  'Vary (Region)' = 'Vary (Region)', // Region variation button
-  '⬅️' = '⬅️',   // Left pan button
-  '➡️' = '➡️',   // Right pan button
-  '⬆️' = '⬆️',   // Up pan button
-  '⬇️' = '⬇️',   // Down pan button
-  'Make Square' = 'Make Square', // Make square button
-  'Upscale (2x)' = 'Upscale (2x)', // Upscale button (2x)
-  'Upscale (4x)' = 'Upscale (4x)', // Upscale button (4x)
-  'Cancel Job' = 'Cancel Job', // Cancel job button
-  'Upscale (Creative)' = 'Cancel Job', // Cancel job button'
-  'Upscale (Subtle)' = 'Upscale (Subtle)', // Upscale button (Subtle)
+  REROLL = '🔄',   // Reroll button
+  ZOOM_OUT_2X = 'Zoom Out 2x', // Zoom Out button (2x)
+  ZOOM_OUT_1_5X = 'Zoom Out 1.5x', // Zoom Out button (1.5x)
+  VARY_STRONG = 'Vary (Strong)', // Strong variation button
+  VARY_SUBTLE = 'Vary (Subtle)', // Subtle variation button
+  VARY_REGION = 'Vary (Region)', // Region variation button
+  PAN_LEFT = '⬅️',   // Left pan button
+  PAN_RIGHT = '➡️',   // Right pan button
+  PAN_UP = '⬆️',   // Up pan button
+  PAN_DOWN = '⬇️',   // Down pan button
+  MAKE_SQUARE = 'Make Square', // Make square button
+  UPSCALE_2X = 'Upscale (2x)', // Upscale button (2x)
+  UPSCALE_4X = 'Upscale (4x)', // Upscale button (4x)
+  CANCEL_JOB = 'Cancel Job', // Cancel job button
+  UPSCALE_CREATIVE = 'Upscale (Creative)', // Fixed: was incorrectly mapped to Cancel Job
+  UPSCALE_SUBTLE = 'Upscale (Subtle)', // Upscale button (Subtle)
 }
 
-interface ButtonPressParams extends BaseParams {
-  messageId: string; // Unique identifier for the message
-  button: string; // Button identifier (e.g., "U1")
-  mask?: string; // Optional mask for the Vary Region action
-  prompt?: string; // Optional prompt for the Vary Region action
-}
-
-interface UpscaleParams extends BaseParams {
-  messageId: string; // Unique identifier for the message
-  index: number; // Index of the button to upscale
-}
-
-interface VariantParams extends BaseParams {
-  messageId: string; // Unique identifier for the message
-  index: number; // Index of the button to generate a variant
-}
-
-interface RerollParams extends BaseParams {
-  messageId: string; // Unique identifier for the message
-}
-
-interface InpaintingParams extends BaseParams {
-  messageId: string; // Unique identifier for the message
-  mask: string; // Mask for the region to vary, required
-  prompt?: string; // Optional prompt for the inpainting
-}
-
-// ImagineProSDK class for interacting with the Imagine Pro API
+/**
+ * ImagineProSDK class for interacting with the Imagine Pro AI image generation API
+ */
 class ImagineProSDK {
   private apiKey: string;
-  private baseUrl: string; // Default base URL
-  private defaultTimeout: number; // Default timeout for requests in milliseconds
-  private fetchInterval: number; // Default interval for polling the message status
+  private baseUrl: string;
+  private defaultTimeout: number;
+  private fetchInterval: number;
 
-  constructor({ apiKey, baseUrl, defaultTimeout, fetchInterval }: ImagineProSDKOptions) {
+  /**
+   * Initialize the SDK with configuration options
+   */
+  constructor({ 
+    apiKey, 
+    baseUrl = 'https://api.imaginepro.ai', 
+    defaultTimeout = 1800000, // 30 minutes
+    fetchInterval = 2000 // 2 seconds
+  }: Types.ImagineProSDKOptions) {
     this.apiKey = apiKey;
-    this.baseUrl = baseUrl || 'https://api.imaginepro.ai';
-    this.defaultTimeout = defaultTimeout || 1800000; // 30 minutes
-    this.fetchInterval = fetchInterval || 2000; // 2 seconds
+    this.baseUrl = baseUrl;
+    this.defaultTimeout = defaultTimeout;
+    this.fetchInterval = fetchInterval;
   }
 
-  async imagine(params: ImagineParams): Promise<ImagineResponse> {
+  /**
+   * Generate an image with the given prompt
+   */
+  async imagine(params: Types.ImagineParams): Promise<Types.ImagineResponse> {
     return this.postRequest('/api/v1/nova/imagine', params);
   }
 
-  async fetchMessageOnce(messageId: string): Promise<MessageResponse> {
+  /**
+   * Fetch the status of a message once
+   */
+  async fetchMessageOnce(messageId: string): Promise<Types.MessageResponse> {
     const endpoint = `/api/v1/message/fetch/${messageId}`;
-    const messageStatus = await this.getRequest<MessageResponse>(endpoint);
-    console.log('Message status:', messageStatus.status, 'progress:',  messageStatus.progress);
-
+    const messageStatus = await this.getRequest<Types.MessageResponse>(endpoint);
+    console.log('Message status:', messageStatus.status, 'progress:', messageStatus.progress);
     return messageStatus;
   }
 
-  async fetchMessage(messageId: string, interval = this.fetchInterval, timeout = this.defaultTimeout): Promise<MessageResponse> {
+  /**
+   * Poll for message status until completion or timeout
+   */
+  async fetchMessage(
+    messageId: string, 
+    interval = this.fetchInterval, 
+    timeout = this.defaultTimeout
+  ): Promise<Types.MessageResponse> {
     const startTime = Date.now();
 
     while (true) {
@@ -142,42 +172,72 @@ class ImagineProSDK {
     }
   }
 
-  async pressButton(params: ButtonPressParams): Promise<ImagineResponse> {
+  /**
+   * Press a button on an existing image generation
+   */
+  async pressButton(params: Types.ButtonPressParams): Promise<Types.ImagineResponse> {
     return this.postRequest('/api/v1/nova/button', params);
   }
 
-  async upscale(params: UpscaleParams): Promise<ImagineResponse> {
+  /**
+   * Upscale a generated image
+   */
+  async upscale(params: Types.UpscaleParams): Promise<Types.ImagineResponse> {
     const button = `U${params.index}`;
     return this.pressButton({
       messageId: params.messageId,
       button,
+      ...this.extractBaseParams(params)
     });
   }
 
-  async variant(params: VariantParams): Promise<ImagineResponse> {
+  /**
+   * Create a variant of a generated image
+   */
+  async variant(params: Types.VariantParams): Promise<Types.ImagineResponse> {
     const button = `V${params.index}`;
     return this.pressButton({
       messageId: params.messageId,
       button,
+      ...this.extractBaseParams(params)
     });
   }
 
-  async reroll(params: RerollParams): Promise<ImagineResponse> {
+  /**
+   * Regenerate an image with the same prompt
+   */
+  async reroll(params: Types.RerollParams): Promise<Types.ImagineResponse> {
     return this.pressButton({
       messageId: params.messageId,
-      button: '🔄',
+      button: Button.REROLL,
+      ...this.extractBaseParams(params)
     });
   }
 
-  async inpainting(params: InpaintingParams): Promise<ImagineResponse> {
+  /**
+   * Apply inpainting to modify a specific region of an image
+   */
+  async inpainting(params: Types.InpaintingParams): Promise<Types.ImagineResponse> {
     return this.pressButton({
       messageId: params.messageId,
-      button: 'Vary (Region)',
+      button: Button.VARY_REGION,
       mask: params.mask,
       prompt: params.prompt,
+      ...this.extractBaseParams(params)
     });
   }
 
+  /**
+   * Extract base parameters from a params object
+   */
+  private extractBaseParams(params: Types.BaseParams): Types.BaseParams {
+    const { ref, webhookOverride, timeout, disableCdn } = params;
+    return { ref, webhookOverride, timeout, disableCdn };
+  }
+
+  /**
+   * Make a GET request to the API
+   */
   private async getRequest<T>(endpoint: string): Promise<T> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -189,7 +249,7 @@ class ImagineProSDK {
       });
 
       if (!response.ok) {
-        const errorResponse = await response.json();
+        const errorResponse = await response.json() as Types.ErrorResponse;
         throw new Error(errorResponse.error || `Error fetching data: ${response.statusText}`);
       }
 
@@ -200,6 +260,9 @@ class ImagineProSDK {
     }
   }
 
+  /**
+   * Make a POST request to the API
+   */
   private async postRequest<T>(endpoint: string, body: unknown): Promise<T> {
     try {
       const response = await fetch(`${this.baseUrl}${endpoint}`, {
@@ -212,7 +275,7 @@ class ImagineProSDK {
       });
 
       if (!response.ok) {
-        const errorResponse = await response.json();
+        const errorResponse = await response.json() as Types.ErrorResponse;
         throw new Error(errorResponse.error || `Error posting data: ${response.statusText}`);
       }
 
@@ -224,4 +287,5 @@ class ImagineProSDK {
   }
 }
 
+export { ImagineProSDK, Button, Types };
 export default ImagineProSDK;

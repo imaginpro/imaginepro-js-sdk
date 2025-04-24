@@ -1,6 +1,6 @@
 {
   "name": "imaginepro",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -30,6 +30,7 @@
   "keywords": [
     "imaginepro",
     "sdk",
+    "api",
     "javascript",
     "image generation",
     "image to image",
