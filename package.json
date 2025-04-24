@@ -22,5 +22,31 @@
   ],
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/imaginpro/imaginepro-js-sdk"
+  },
+  "keywords": [
+    "imaginepro",
+    "sdk",
+    "javascript",
+    "image generation",
+    "image to image",
+    "text to image",
+    "image editing",
+    "image upscaling",
+    "midjourney",
+    "stability.ai",
+    "dalle",
+    "dall-e",
+    "flux"
+  ],
+  "bugs": {
+    "url": "https://github.com/imaginpro/imaginepro-js-sdk/issues"
+  },
+  "homepage": "https://github.com/imaginpro/imaginepro-js-sdk#readme",
+  "engines": {
+    "node": ">=18.x"
   }
 }
