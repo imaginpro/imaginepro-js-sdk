@@ -1,5 +1,12 @@
 # imaginepro-js-sdk
 
+[![npm version](https://img.shields.io/npm/v/imaginepro.svg)](https://www.npmjs.com/package/imaginepro)
+[![License](https://img.shields.io/npm/l/imaginepro.svg)](https://github.com/imaginpro/imaginepro-js-sdk/blob/main/LICENSE)
+[![Downloads](https://img.shields.io/npm/dm/imaginepro.svg)](https://www.npmjs.com/package/imaginepro)
+[![Build Status](https://img.shields.io/github/workflow/status/imaginpro/imaginepro-js-sdk/CI)](https://github.com/imaginpro/imaginepro-js-sdk/actions)
+[![Dependencies](https://img.shields.io/librariesio/release/npm/imaginepro)](https://libraries.io/npm/imaginepro)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/imaginpro/imaginepro-js-sdk/blob/main/CONTRIBUTING.md)
+
 Official SDK of [Imaginepro](https://platform.imaginepro.ai/), your professional AI image generation platform with enterprise-grade stability and scalability.
 
 Imaginepro offers state-of-the-art AI image generation capabilities with:
