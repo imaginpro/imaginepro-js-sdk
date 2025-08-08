@@ -7,7 +7,7 @@
 [![Dependencies](https://img.shields.io/librariesio/release/npm/imaginepro)](https://libraries.io/npm/imaginepro)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/imaginpro/imaginepro-js-sdk/blob/main/CONTRIBUTING.md)
 
-Official SDK of [Imaginepro](https://platform.imaginepro.ai/), your professional AI image generation platform with enterprise-grade stability and scalability.
+Official SDK of [Imaginepro](https://platform.imaginepro.ai/midjourney-api?utm_source=github), your professional AI image generation platform with enterprise-grade stability and scalability.
 
 Imaginepro offers state-of-the-art AI image generation capabilities with:
 
