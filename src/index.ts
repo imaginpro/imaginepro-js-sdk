@@ -40,6 +40,36 @@ namespace Types {
     prompt?: string; // Optional prompt for the inpainting
   }
 
+  // Gemini API Types
+  export interface GeminiContent {
+    type: 'image' | 'text'; // Content type
+    url?: string; // Image URL (required for type: 'image')
+    text?: string; // Text content (required for type: 'text')
+  }
+
+  export interface GeminiImagineParams extends BaseParams {
+    contents: GeminiContent[]; // Array of content objects (images and text)
+    model?: string; // Model to use (default: "gemini-2.5-flash-image-preview", alternative: "flux-1.1-pro")
+  }
+
+  // Video API Types
+  export interface VideoGenerateParams extends BaseParams {
+    prompt: string; // Text prompt for video generation
+    startFrameUrl: string; // URL of the start frame image
+    endFrameUrl: string; // URL of the end frame image
+  }
+
+  export interface VideoExtendParams extends BaseParams {
+    messageId: string; // Unique identifier for the video message
+    index: number; // Index of the result to extend
+    animateMode?: string; // Animation mode
+  }
+
+  export interface VideoMessageResponse extends MessageResponse {
+    videoUrl?: string; // Generated video URL
+    results?: Array<{ url: string; index: number }>; // Array of video results
+  }
+
   // Response Types
   export interface ImagineResponse {
     messageId: string; // Unique identifier for the image generation task
@@ -225,6 +255,62 @@ class ImagineProSDK {
       prompt: params.prompt,
       ...this.extractBaseParams(params)
     });
+  }
+
+  /**
+   * Generate an image using Gemini/Nanobanana model
+   */
+  async geminiImagine(params: Types.GeminiImagineParams): Promise<Types.ImagineResponse> {
+    return this.postRequest('/api/v1/gemini/imagine', params);
+  }
+
+  /**
+   * Generate a video from start and end frame images using Midjourney video generation
+   */
+  async generateVideo(params: Types.VideoGenerateParams): Promise<Types.ImagineResponse> {
+    return this.postRequest('/api/v1/video/mj/generate', params);
+  }
+
+  /**
+   * Extend a generated video by choosing one result from the previous response
+   */
+  async extendVideo(params: Types.VideoExtendParams): Promise<Types.ImagineResponse> {
+    return this.postRequest('/api/v1/video/mj/extend', params);
+  }
+
+  /**
+   * Fetch the status of a video message once
+   */
+  async fetchVideoMessageOnce(messageId: string): Promise<Types.VideoMessageResponse> {
+    const endpoint = `/api/v1/video/mj/fetch/${messageId}`;
+    const messageStatus = await this.getRequest<Types.VideoMessageResponse>(endpoint);
+    console.log('Video message status:', messageStatus.status, 'progress:', messageStatus.progress);
+    return messageStatus;
+  }
+
+  /**
+   * Poll for video message status until completion or timeout
+   */
+  async fetchVideoMessage(
+    messageId: string,
+    interval = this.fetchInterval,
+    timeout = this.defaultTimeout
+  ): Promise<Types.VideoMessageResponse> {
+    const startTime = Date.now();
+
+    while (true) {
+      const messageStatus = await this.fetchVideoMessageOnce(messageId);
+
+      if (messageStatus.status === 'DONE' || messageStatus.status === 'FAIL') {
+        return messageStatus;
+      }
+
+      if (Date.now() - startTime > timeout) {
+        throw new Error('Timeout exceeded while waiting for video message status.');
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, interval));
+    }
   }
 
   /**
