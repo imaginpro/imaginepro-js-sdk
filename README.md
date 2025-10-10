@@ -20,13 +20,33 @@ Imaginepro offers state-of-the-art AI image generation capabilities with:
 
 ## Key Features
 
-- Text-to-Image Generation: Create stunning images from text descriptions
-- Image Upscaling: Enhance image resolution while maintaining quality
-- Image Variants: Generate alternative versions of existing images
-- Inpainting: Selectively modify specific areas of an image
-- Webhook Support: Integrate with your workflow using custom callbacks
-- Progress Tracking: Monitor generation progress in real-time
-- Enterprise Support: Professional technical support and SLA
+- **Text-to-Image Generation**: Create stunning images from text descriptions
+- **Gemini AI Integration**: Multi-modal image generation with image and text inputs
+- **Video Generation**: Create videos from start and end frame images using Midjourney
+- **Image Upscaling**: Enhance image resolution while maintaining quality
+- **Image Variants**: Generate alternative versions of existing images
+- **Inpainting**: Selectively modify specific areas of an image
+- **Webhook Support**: Integrate with your workflow using custom callbacks
+- **Progress Tracking**: Monitor generation progress in real-time
+- **Enterprise Support**: Professional technical support and SLA
+
+## Table of Contents
+
+- [Get Started](#get-started)
+- [Quick Start](#quick-start)
+- [API Methods](#api-methods)
+  - [Imagine](#imagine)
+  - [Gemini Imagine](#gemini-imagine)
+  - [Video Generation](#video-generation)
+  - [Buttons](#buttons)
+  - [Upscale](#upscale)
+  - [Variant](#variant)
+  - [Reroll](#reroll)
+  - [Inpainting](#inpainting)
+  - [Fetch Message](#fetch-message)
+- [Webhook Support](#with-webhook)
+- [Init Options](#init-options)
+- [Message Response](#message-response)
 
 ## Get Started
 
@@ -34,7 +54,7 @@ Imaginepro offers state-of-the-art AI image generation capabilities with:
 npm i imaginepro -S
 ```
 
-## Quick start
+## Quick Start
 
 ```ts
 import ImagineProSDK from 'imaginepro';
@@ -60,7 +80,9 @@ const instance = new ImagineProSDK({
 })();
 ```
 
-## Imagine
+## API Methods
+
+### Imagine
 
 The `imagine` method allows you to generate an image based on a text prompt.
 
@@ -71,7 +93,7 @@ const imagineResponse = await instance.imagine({
 console.log('Imagine response:', imagineResponse);
 ```
 
-## Buttons
+### Buttons
 
 The `pressButton` method allows you to interact with buttons associated with a message. You can specify the `messageId`, `button` identifier.
 
@@ -83,7 +105,7 @@ const buttonResponse = await instance.pressButton({
 console.log('Button press response:', buttonResponse);
 ```
 
-## Upscale
+### Upscale
 
 The `upscale` method allows you to upscale an image by interacting with the button 'U1' using the provided `messageId` and `index`.
 
@@ -95,7 +117,7 @@ const buttonResponse = await instance.upscale({
 console.log('Upscale response:', buttonResponse);
 ```
 
-## Variant
+### Variant
 
 The `variant` method allows you to generate a variant of an image by interacting with a variant button using the provided `messageId` and `index`.
 
@@ -107,7 +129,7 @@ const buttonResponse = await instance.variant({
 console.log('Variant response:', buttonResponse);
 ```
 
-## Reroll
+### Reroll
 
 The `reroll` method allows you to regenerate an image using the provided `messageId`.
 
@@ -118,7 +140,7 @@ const rerollResponse = await instance.reroll({
 console.log('Reroll response:', rerollResponse);
 ```
 
-## Inpainting
+### Inpainting
 
 The `inpainting` method allows you to vary a specific region of an image using the provided `messageId` and `mask`. You can create mask by this [tool](https://mask.imaginepro.ai/)
 
@@ -130,7 +152,84 @@ const inpaintingResponse = await instance.inpainting({
 console.log('Inpainting response:', inpaintingResponse);
 ```
 
-## Fetch Message
+### Gemini Imagine
+
+The `geminiImagine` method allows you to generate images using the Gemini/Nanobanana model with multi-modal inputs (combining images and text).
+
+```ts
+const geminiResponse = await instance.geminiImagine({
+    contents: [
+        { type: 'image', url: 'https://example.com/input-image.png' },
+        { type: 'text', text: 'make her dress in red' }
+    ],
+    model: 'gemini-2.5-flash-image-preview', // Optional, or use 'flux-1.1-pro'
+});
+console.log('Gemini response:', geminiResponse);
+
+// Poll for completion
+const result = await instance.fetchMessage(geminiResponse.messageId);
+console.log('Generated image:', result.uri);
+```
+
+#### Parameters
+
+- `contents` (array, required): Array of content objects with `type` ('image' or 'text'), `url` (for images), and `text` (for text).
+- `model` (string, optional): Model to use. Defaults to `"gemini-2.5-flash-image-preview"`. Alternative: `"flux-1.1-pro"`.
+- Supports all base parameters: `ref`, `webhookOverride`, `timeout`, `disableCdn`.
+
+### Video Generation
+
+#### Generate Video
+
+The `generateVideo` method creates a video from start and end frame images using Midjourney's video generation.
+
+```ts
+const videoResponse = await instance.generateVideo({
+    prompt: 'smooth transition animation',
+    startFrameUrl: 'https://example.com/start-frame.png',
+    endFrameUrl: 'https://example.com/end-frame.png',
+    timeout: 900, // 15 minutes recommended for video generation
+});
+console.log('Video generation initiated:', videoResponse);
+
+// Poll for video completion
+const video = await instance.fetchVideoMessage(videoResponse.messageId);
+console.log('Generated video:', video.videoUrl);
+console.log('Available results:', video.results);
+```
+
+#### Extend Video
+
+The `extendVideo` method extends a previously generated video by selecting one of the results.
+
+```ts
+const extendResponse = await instance.extendVideo({
+    messageId: 'your-video-message-id',
+    index: 0, // Choose which result to extend
+    animateMode: 'smooth', // Optional animation mode
+    timeout: 900,
+});
+console.log('Video extension initiated:', extendResponse);
+
+// Poll for extended video completion
+const extendedVideo = await instance.fetchVideoMessage(extendResponse.messageId);
+console.log('Extended video:', extendedVideo.videoUrl);
+```
+
+#### Fetch Video Message
+
+The `fetchVideoMessage` method polls for video generation status until completion.
+
+```ts
+const videoStatus = await instance.fetchVideoMessage(
+    'your-video-message-id',
+    2000, // Polling interval (optional)
+    900000 // Timeout in milliseconds (optional, defaults to 15 minutes)
+);
+console.log('Video status:', videoStatus);
+```
+
+### Fetch Message
 
 The `fetchMessage` method allows you to retrieve the status and details of a specific message using its `messageId`. This method polls the message status until it is either `DONE` or `FAIL`.
 
@@ -139,17 +238,17 @@ const messageResponse = await instance.fetchMessage('your-message-id');
 console.log('Message response:', messageResponse);
 ```
 
-### Parameters
+#### Parameters
 
 - `messageId` (string): The unique identifier for the message.
 - `interval` (number, optional): The polling interval in milliseconds. Defaults to 2000ms.
 - `timeout` (number, optional): The maximum time to wait for the message status in milliseconds. Defaults to 30 minutes.
 
-### Returns
+#### Returns
 
 A `MessageResponse` object containing details such as the `status`, `progress`, and generated image URL (if successful).
 
-### Example
+#### Example
 
 ```ts
 (async () => {
@@ -162,7 +261,7 @@ A `MessageResponse` object containing details such as the `status`, `progress`, 
 })();
 ```
 
-## With webhook
+## With Webhook
 
 You can use the optional parameters `ref` and `webhookOverride` to customize the behavior of the SDK when generating images.
 
@@ -208,7 +307,7 @@ const sdk = new ImagineProSDK({
 
 The `MessageResponse` object contains details about the status and result of a message.
 
-### Properties
+## Properties
 
 - `messageId` (string): The unique identifier for the message.
 - `prompt` (string): The prompt used for image generation.
