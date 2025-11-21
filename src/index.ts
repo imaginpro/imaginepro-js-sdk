@@ -47,9 +47,29 @@ namespace Types {
     text?: string; // Text content (required for type: 'text')
   }
 
+  export type UniversalModel =
+    | 'gemini-2.5-flash-image-preview'
+    | 'nano-banana'
+    | 'gemini-3-pro-image-preview'
+    | 'nano-banana-2';
+
+  export type GeminiModel = UniversalModel | 'flux-1.1-pro';
+
   export interface GeminiImagineParams extends BaseParams {
     contents: GeminiContent[]; // Array of content objects (images and text)
-    model?: string; // Model to use (default: "gemini-2.5-flash-image-preview", alternative: "flux-1.1-pro")
+    model?: GeminiModel; // Model to use (default: "gemini-2.5-flash-image-preview", alternative: "flux-1.1-pro")
+  }
+
+  export interface UniversalImagineParams extends BaseParams {
+    contents: GeminiContent[]; // Array of content blocks used for edit/generation
+    model?: UniversalModel; // Flux/Gemini/Nano Banana model to use
+  }
+
+  export interface UniversalImagineResponse {
+    success: boolean; // Request status
+    messageId: string; // Identifier of the image edit/generation job
+    createdAt: string; // Timestamp of job creation
+    error?: string; // Error message if the request fails
   }
 
   // Video API Types
@@ -262,6 +282,13 @@ class ImagineProSDK {
    */
   async geminiImagine(params: Types.GeminiImagineParams): Promise<Types.ImagineResponse> {
     return this.postRequest('/api/v1/gemini/imagine', params);
+  }
+
+  /**
+   * Edit or generate an image using the Universal Imagine endpoint
+   */
+  async universalImagine(params: Types.UniversalImagineParams): Promise<Types.UniversalImagineResponse> {
+    return this.postRequest('/api/v1/universal/imagine', params);
   }
 
   /**

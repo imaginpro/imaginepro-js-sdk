@@ -1,5 +1,5 @@
 /// <reference types="jest" />
-import ImagineProSDK from '../index';
+import ImagineProSDK, { Types } from '../index';
 
 describe('ImagineProSDK', () => {
   const mockApiKey = 'test-api-key';
@@ -47,6 +47,49 @@ describe('ImagineProSDK', () => {
           'Authorization': `Bearer ${mockApiKey}`,
         },
         body: JSON.stringify({ prompt }),
+      })
+    );
+  });
+
+  it('should call universalImagine with contents payload and selected model', async () => {
+    const mockResponse = {
+      success: true,
+      messageId: 'universal-message',
+      createdAt: new Date().toISOString(),
+    };
+
+    global.fetch = jest.fn().mockImplementationOnce(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve(mockResponse),
+      })
+    );
+
+    const contents: Types.GeminiContent[] = [
+      { type: 'image', url: 'https://example.com/image.png' },
+      { type: 'text', text: 'make her dress in red' },
+    ];
+
+    const result = await sdk.universalImagine({
+      contents,
+      model: 'nano-banana-2',
+      ref: 'ref-id',
+    });
+
+    expect(result).toBe(mockResponse);
+    expect(global.fetch).toHaveBeenCalledWith(
+      'https://api.imaginepro.ai/api/v1/universal/imagine',
+      expect.objectContaining({
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${mockApiKey}`,
+        },
+        body: JSON.stringify({
+          contents,
+          model: 'nano-banana-2',
+          ref: 'ref-id',
+        }),
       })
     );
   });

@@ -37,6 +37,7 @@ Imaginepro offers state-of-the-art AI image generation capabilities with:
 - [API Methods](#api-methods)
   - [Imagine](#imagine)
   - [Gemini Imagine](#gemini-imagine)
+  - [Universal Imagine](#universal-imagine)
   - [Video Generation](#video-generation)
   - [Buttons](#buttons)
   - [Upscale](#upscale)
@@ -176,6 +177,35 @@ console.log('Generated image:', result.uri);
 - `contents` (array, required): Array of content objects with `type` ('image' or 'text'), `url` (for images), and `text` (for text).
 - `model` (string, optional): Model to use. Defaults to `"gemini-2.5-flash-image-preview"`. Alternative: `"flux-1.1-pro"`.
 - Supports all base parameters: `ref`, `webhookOverride`, `timeout`, `disableCdn`.
+
+### Universal Imagine
+
+The `universalImagine` method exposes the Edit/Generate Image API (`/api/v1/universal/imagine`) which supports the newest Gemini/Nanobanana models and is optimized for image-to-image edits that include both image URLs and text instructions.
+
+```ts
+const universalResponse = await instance.universalImagine({
+    contents: [
+        { type: 'image', url: 'https://xxxx.supabase.co/storage/v1/object/public/example.png' },
+        { type: 'text', text: 'make her dress in red' },
+    ],
+    model: 'nano-banana-2', // Optional: nano-banana, gemini-2.5-flash-image-preview, gemini-3-pro-image-preview
+    ref: 'custom-job-reference',
+});
+console.log('Universal Imagine response:', universalResponse);
+
+const universalResult = await instance.fetchMessage(universalResponse.messageId);
+console.log('Universal Imagine result:', universalResult);
+```
+
+#### Parameters
+
+- `contents` (array, required): Multi-modal blocks describing the edit. Each block must include a `type` field (`'image'` or `'text'`) plus the corresponding `url` or `text`.
+- `model` (string, optional): Defaults to `"nano-banana"`. Supported models: `"nano-banana"`, `"nano-banana-2"`, `"gemini-2.5-flash-image-preview"`, `"gemini-3-pro-image-preview"`.
+- Inherits base parameters such as `ref`, `webhookOverride`, `timeout`, and `disableCdn`.
+
+#### Returns
+
+An object containing the `success` flag, `messageId`, `createdAt` timestamp, and optional `error`. Use `fetchMessage` just like other tasks to retrieve the final asset.
 
 ### Video Generation
 
